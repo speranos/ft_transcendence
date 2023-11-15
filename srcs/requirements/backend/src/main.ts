@@ -1,9 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { AuthModule } from './auth/auth.module';
-import { PrismaClient } from '@prisma/client';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
+import { ValidationPipe } from '@nestjs/common';
 
 function  swagger_set(app){
   const config = new DocumentBuilder()
@@ -16,8 +15,8 @@ function  swagger_set(app){
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   swagger_set(app);
+  app.useGlobalPipes(new ValidationPipe({whitelist: true}));
   await app.listen(3000);
 }
-
 
 bootstrap();

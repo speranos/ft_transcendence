@@ -19,4 +19,7 @@ model User{
 
 model chat{
   id Int @id
+  email String @unique
+  username String
+  Password String
 }
