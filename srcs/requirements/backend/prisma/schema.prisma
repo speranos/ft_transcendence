@@ -10,16 +10,70 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id Int @id @default(autoincrement())
-  email String @unique
-  username String @unique
-  Password String
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // ... other user-related fields
+
+  // Relationships
+  memberInRooms RoomMembership[]
+  ownedRooms    Room[]   @relation("owner")
+  adminInRooms  Room[]   @relation("admin")
+  blockedUsers  User[]   @relation("blocked", references: [id])
 }
 
-model chat{
-  id Int @id
-  email String @unique
-  username String
-  Password String
+model Room {
+  id          Int      @id @default(autoincrement())
+  name        String
+  type        RoomType
+  password    String?
+  ownerId     Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  // ... other room-related fields
+
+  // Relationships
+  owner       User     @relation("owner", fields: [ownerId], references: [id])
+  admins      User[]   @relation("admin", references: [id])
+  members     User[]   @relation("member", references: [id])
+  messages    Message[]
+}
+
+model RoomMembership {
+  userId     Int @id
+  roomId     Int
+  role       RoomRole
+  createdAt  DateTime @default(now())
+
+  // Relationships
+  user       User @relation(fields: [userId], references: [id])
+  room       Room @relation(fields: [roomId], references: [id])
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String
+  senderId  Int
+  roomId    Int
+  createdAt DateTime @default(now())
+
+  // Relationships
+  sender    User @relation(fields: [senderId], references: [id])
+  room      Room @relation(fields: [roomId], references: [id])
+}
+
+enum RoomType {
+  PUBLIC
+  PRIVATE
+  PASSWORD_PROTECTED
+}
+
+enum RoomRole {
+  OWNER
+  ADMIN
+  MEMBER
 }
