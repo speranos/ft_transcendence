@@ -17,41 +17,44 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  // ... other user-related fields
 
   // Relationships
   memberInRooms RoomMembership[]
-  ownedRooms    Room[]   @relation("owner")
-  adminInRooms  Room[]   @relation("admin")
-  blockedUsers  User[]   @relation("blocked", references: [id])
+  // friends              User[]               @relation("friends")
+  // ownedRooms           Room[]               @relation("owner")
+  // adminInRooms         Room[]               @relation("admin")
+  // blockedUsers         User[]               @relation("blocked")
+  // sentFriendRequests   FriendshipRequest[] @relation("sentRequests", references: [id])
+  // receivedFriendRequests FriendshipRequest[] @relation("receivedRequests", references: [id])
 }
 
 model Room {
-  id          Int      @id @default(autoincrement())
-  name        String
-  type        RoomType
-  password    String?
-  ownerId     Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  name      String
+  type      RoomType
+  password  String?
+  ownerId   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   // ... other room-related fields
 
   // Relationships
-  owner       User     @relation("owner", fields: [ownerId], references: [id])
-  admins      User[]   @relation("admin", references: [id])
-  members     User[]   @relation("member", references: [id])
-  messages    Message[]
+  // owner       User     @relation("owner", fields: [ownerId], references: [id])
+  // admins      User[]   @relation("admin", references: [id])
+  // members     User[]   @relation("member", references: [id])
+  // messages    Message[]
+  RoomMembership RoomMembership[]
 }
 
 model RoomMembership {
-  userId     Int @id
-  roomId     Int
-  role       RoomRole
-  createdAt  DateTime @default(now())
+  userId    Int      @id
+  roomId    Int
+  role      RoomRole
+  createdAt DateTime @default(now())
 
   // Relationships
-  user       User @relation(fields: [userId], references: [id])
-  room       Room @relation(fields: [roomId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+  room Room @relation(fields: [roomId], references: [id])
 }
 
 model Message {
@@ -62,8 +65,25 @@ model Message {
   createdAt DateTime @default(now())
 
   // Relationships
-  sender    User @relation(fields: [senderId], references: [id])
-  room      Room @relation(fields: [roomId], references: [id])
+  //   sender    User @relation(fields: [senderId], references: [id])
+  //   room      Room @relation(fields: [roomId], references: [id])
+}
+
+model FriendshipRequest {
+  id         Int                     @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  status     FriendshipRequestStatus
+  createdAt  DateTime                @default(now())
+
+  // sender       User @relation("sentRequests", fields: [senderId], references: [id])
+  // receiver     User @relation("receivedRequests", fields: [receiverId], references: [id])
+}
+
+enum FriendshipRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 enum RoomType {
