@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -18,31 +15,41 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relationships
-  memberInRooms RoomMembership[]
-  // friends              User[]               @relation("friends")
-  // ownedRooms           Room[]               @relation("owner")
-  // adminInRooms         Room[]               @relation("admin")
-  // blockedUsers         User[]               @relation("blocked")
-  // sentFriendRequests   FriendshipRequest[] @relation("sentRequests", references: [id])
-  // receivedFriendRequests FriendshipRequest[] @relation("receivedRequests", references: [id])
+  receivedRequests FriendshipRequest[] @relation("received")
+  sentRequests     FriendshipRequest[] @relation("sent")
+  friends          User[]              @relation("friends")
+  FriendRelation   User[]              @relation("friends")
+  memberIn         Room[]              @relation("member")
+
+  blockedUsers         User[] @relation("blocked")
+  blockedUsersrelation User[] @relation("blocked")
+
+  blockingUsers         User[] @relation("block")
+  blockingUsersrelation User[] @relation("block")
+}
+
+model FriendshipRequest {
+  id         Int                     @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  status     FriendshipRequestStatus
+  createdAt  DateTime                @default(now())
+  receiver   User                    @relation("received", fields: [receiverId], references: [id])
+  sender     User                    @relation("sent", fields: [senderId], references: [id])
 }
 
 model Room {
   id        Int      @id @default(autoincrement())
+  userId    Int
   name      String
   type      RoomType
   password  String?
   ownerId   Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  // ... other room-related fields
 
-  // Relationships
-  // owner       User     @relation("owner", fields: [ownerId], references: [id])
-  // admins      User[]   @relation("admin", references: [id])
-  // members     User[]   @relation("member", references: [id])
-  // messages    Message[]
+  members        User[]           @relation("member")
+  messages       Message[]
   RoomMembership RoomMembership[]
 }
 
@@ -52,8 +59,6 @@ model RoomMembership {
   role      RoomRole
   createdAt DateTime @default(now())
 
-  // Relationships
-  user User @relation(fields: [userId], references: [id])
   room Room @relation(fields: [roomId], references: [id])
 }
 
@@ -64,26 +69,15 @@ model Message {
   roomId    Int
   createdAt DateTime @default(now())
 
-  // Relationships
-  //   sender    User @relation(fields: [senderId], references: [id])
-  //   room      Room @relation(fields: [roomId], references: [id])
+  room Room @relation(fields: [roomId], references: [id])
 }
 
-model FriendshipRequest {
-  id         Int                     @id @default(autoincrement())
+model DirectMessage {
+  id         Int      @id @default(autoincrement())
   senderId   Int
   receiverId Int
-  status     FriendshipRequestStatus
-  createdAt  DateTime                @default(now())
-
-  // sender       User @relation("sentRequests", fields: [senderId], references: [id])
-  // receiver     User @relation("receivedRequests", fields: [receiverId], references: [id])
-}
-
-enum FriendshipRequestStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
+  content    String
+  createdAt  DateTime @default(now())
 }
 
 enum RoomType {
@@ -96,4 +90,10 @@ enum RoomRole {
   OWNER
   ADMIN
   MEMBER
+}
+
+enum FriendshipRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }

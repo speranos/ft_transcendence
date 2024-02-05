@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { singupdto, singindto } from '../dto';
-import { PrismaMdService } from 'src/prisma-md/prisma-md.service';
+import { PrismaService } from 'src/prisma-md/prisma-md.service';
 import * as argon from 'argon2';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { JwtService } from '@nestjs/jwt';
@@ -8,7 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class AuthService {
   constructor(
-    private db: PrismaMdService,
+    private db: PrismaService,
     private jwt: JwtService
     ){}
 
@@ -22,7 +22,7 @@ export class AuthService {
     });
     if(!user)
       throw new ForbiddenException('User Not found!');
-    const pass_check = await argon.verify(user.Password, dto.password)
+    const pass_check = await argon.verify(user.password, dto.password)
     if(!pass_check)
       throw new ForbiddenException('Incorrect password!');
     const payload = {sub: user.id, username: user.username};

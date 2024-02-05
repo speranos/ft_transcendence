@@ -6,9 +6,11 @@ import { UserModule } from './user/user.module';
 import { PrismaMdModule } from './prisma-md/prisma-md.module';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { ChatGateway } from './chat/chat.gateway';
+import { FriendshipModule } from './friendship/friendship.module';
+import { FriendshipService } from './friendship/friendship.service';
 
 @Module({
-  imports: [AuthModule, UserModule, PrismaMdModule],
+  imports: [AuthModule, UserModule, PrismaMdModule, FriendshipModule],
   controllers: [AppController],
   providers: [AppService, ChatGateway],
 })
