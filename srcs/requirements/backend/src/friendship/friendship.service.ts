@@ -14,12 +14,24 @@ export class FriendshipService {
   constructor(private prisma: PrismaService) {}
 
   async sendFriendRequest(senderId: string, receiverId: string) {
-    var usersender = this.prisma.user.findUnique({
-        where: {
-            userID: senderId,
-        }
-    });
-    console.log(usersender);
+    // await this.prisma.user.create({
+    //   data: {
+    //     userID: 'user1',
+    //     userName: 'amine',
+    //     email: 'amine@amine.com',
+    //     oauth: 'user1',
+    //   },
+    // });
+    // await this.prisma.user.create({
+    //   data: {
+    //     userID: 'user2',
+    //     userName: 'oussama',
+    //     email: 'oussam@oussama.com',
+    //     oauth: 'user2',
+    //   },
+    // });
+
+
     const reid = await this.prisma.friendshipRequest.create({
         data: {
           senderID: senderId,
