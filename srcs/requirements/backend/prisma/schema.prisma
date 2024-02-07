@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,34 +11,88 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  username  String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  userID           String         @id @default(uuid())
+  oauth            String         @unique
+  avatar           String         @default("default.jpeg")
+  userName         String?        @unique
+  email            String?        @unique
+  secret2FA        String?        @unique
+  auth2FA_id       String?        @unique
+  finishedProfile  Boolean        @default(false)
+  userOnline       Boolean        @default(false)
+  userInGame       Boolean        @default(false)
+  is2FA            Boolean        @default(false)
+  creationTime     DateTime       @default(now())
+  updateTime       DateTime       @updatedAt
+  P1               Games[]        @relation("Player1")
+  P2               Games[]        @relation("Player2")
+  Achievements     Achievements[]
+  Tokens           TokensR[]      @relation("Refresh")
+  Friendship1      Friendship[]   @relation("Friendship1")
+  Friendship2      Friendship[]   @relation("Friendship2")
+  receivedRequests FriendshipRequest[] @relation("Received")
+  sentRequests     FriendshipRequest[] @relation("Sent")
+}
 
-  receivedRequests FriendshipRequest[] @relation("received")
-  sentRequests     FriendshipRequest[] @relation("sent")
-  friends          User[]              @relation("friends")
-  FriendRelation   User[]              @relation("friends")
-  memberIn         Room[]              @relation("member")
+model TokensR {
+  tokenID      String   @id @unique
+  userID       String
+  creationDate DateTime @default(now())
+  updateDate   DateTime @updatedAt
+  userRelation User     @relation(name: "Refresh", fields: [userID], references: [userID])
+}
 
-  blockedUsers         User[] @relation("blocked")
-  blockedUsersrelation User[] @relation("blocked")
+model Games {
+  gameID      String  @id @default(uuid())
+  player1ID   String
+  player2ID   String
+  winnerID    String?
+  scoreP1     Int     @default(0)
+  scoreP2     Int     @default(0)
+  specialMode Boolean @default(false)
+  P1          User    @relation(name: "Player1", fields: [player1ID], references: [userID])
+  P2          User    @relation(name: "Player2", fields: [player2ID], references: [userID])
+}
 
-  blockingUsers         User[] @relation("block")
-  blockingUsersrelation User[] @relation("block")
+model Achievements {
+  achievementID String   @id @default(uuid())
+  prizeAID      String
+  userAID       String
+  creationTime  DateTime @default(now())
+  updateAt      DateTime @updatedAt
+  prizesWon     Prize    @relation(fields: [prizeAID], references: [prizeID])
+  User          User     @relation(fields: [userAID], references: [userID])
+}
+
+model Prize {
+  prizeID      String         @id @default(uuid())
+  Description  String?
+  prizeImg     String
+  prizeminimum Int
+  Connection   Achievements[]
+}
+
+model Friendship {
+  friendshipID     String           @id @default(uuid())
+  user1ID          String
+  user2ID          String
+  creationTime     DateTime         @default(now())
+  friendshipStatus FriendshipStatus
+  user1            User             @relation(name: "Friendship1", fields: [user1ID], references: [userID])
+  user2            User             @relation(name: "Friendship2", fields: [user2ID], references: [userID])
 }
 
 model FriendshipRequest {
-  id         Int                     @id @default(autoincrement())
-  senderId   Int
-  receiverId Int
-  status     FriendshipRequestStatus
-  createdAt  DateTime                @default(now())
-  receiver   User                    @relation("received", fields: [receiverId], references: [id])
-  sender     User                    @relation("sent", fields: [senderId], references: [id])
+  requestID    String                  @id @default(uuid())
+  senderID     String
+  receiverID   String
+  status       FriendshipRequestStatus
+  type         RequestType
+  ifGameType   Mode?                   @default(REGULAR)
+  creationTime DateTime                @default(now())
+  receiver     User                    @relation("Received", fields: [receiverID], references: [userID])
+  sender       User                    @relation("Sent", fields: [senderID], references: [userID])
+
 }
 
 model Room {
@@ -48,7 +105,7 @@ model Room {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  members        User[]           @relation("member")
+  //   members        User[]           @relation("member")
   messages       Message[]
   RoomMembership RoomMembership[]
 }
@@ -98,4 +155,17 @@ enum FriendshipRequestStatus {
   REJECTED
 }
 
-//TestBR
+enum FriendshipStatus {
+  FRIENDS
+  BLOCKED
+}
+
+enum RequestType {
+  GAME
+  FRIENDSHIP
+}
+
+enum Mode {
+  REGULAR
+  SUPER
+}

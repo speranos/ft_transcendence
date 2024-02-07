@@ -1,12 +1,12 @@
 import { Body, Controller, Get, Post, Res, UseGuards} from '@nestjs/common';
 import { GoogleOauthGuard } from '../guards/google_auth.guard';
-import { AuthService } from './auth.service';
+// import { AuthService } from './auth.service';
 import { singupdto, singindto } from '../dto';
 
 
 @Controller()
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  // constructor(private authService: AuthService) {}
 
   // @Post('/signin')
   // signin(@Body() dto: singindto) {

@@ -13,47 +13,45 @@ import { PrismaService } from '../prisma-md/prisma-md.service';
 export class FriendshipService {
   constructor(private prisma: PrismaService) {}
 
-  async sendFriendRequest(senderId: number, receiverId: number) {
+  async sendFriendRequest(senderId: string, receiverId: string) {
     var usersender = this.prisma.user.findUnique({
         where: {
-            id: senderId,
+            userID: senderId,
         }
     });
     console.log(usersender);
     const reid = await this.prisma.friendshipRequest.create({
         data: {
-          senderId: senderId,
-          receiverId: receiverId,
+          senderID: senderId,
+          receiverID: receiverId,
           status: 'PENDING',
+          type: 'FRIENDSHIP',
         },
       });
-    return reid.id;
+    return reid.requestID;
   }
   
   
-  async acceptFriendRequest(requestId: number) {
-    const request = await this.prisma.friendshipRequest.findUnique({ where: { id: requestId } });
+  async acceptFriendRequest(requestId: string) {
+    const request = await this.prisma.friendshipRequest.findUnique({ where: { requestID: requestId } });
 
     if (!request || request.status !== 'PENDING') {
       throw new NotFoundException('Friendship request not found or not pending');
     }
 
     await this.prisma.friendshipRequest.update({
-      where: { id: requestId },
+      where: { requestID: requestId },
       data: { status: 'ACCEPTED' },
     });
 
-    const   sender = await this.prisma.user.update({
-        where: { id: request.senderId},
-        data: { friends: {connect: {id: request.receiverId}}}
+    const friends = await this.prisma.friendship.create({
+      data: {
+        user1ID: request.senderID,
+        user2ID: request.receiverID,
+        friendshipStatus: 'FRIENDS'
+      },
     });
-
-    const   receiver = await this.prisma.user.update({
-        where: { id: request.receiverId},
-        data: { friends: {connect: {id: request.senderId}}}
-    });
-
-    return this.prisma.friendshipRequest.findUnique({ where: { id: requestId } });
+    return this.prisma.friendshipRequest.findUnique({ where: { requestID: requestId } });
   }
 
 }

@@ -12,16 +12,16 @@ export class FriendshipController {
     @Param('senderId') senderId: string,
     @Param('receiverId') receiverId: string,
   ) {
-    const senderIdNumber = parseInt(senderId, 10);
-    const receiverIdNumber = parseInt(receiverId, 10);
-    return this.friendshipService.sendFriendRequest(senderIdNumber, receiverIdNumber);
+    // const senderIdNumber = parseInt(senderId, 10);
+    // const receiverIdNumber = parseInt(receiverId, 10);
+    return this.friendshipService.sendFriendRequest(senderId, receiverId);
   }
 
   @Post('accept-request/:requestId')
   acceptFriendRequest(@Param('requestId') requestId: string) {
-    const request = parseInt(requestId, 10);
-    return this.friendshipService.acceptFriendRequest(request);
+    // const request = parseInt(requestId, 10);
+    return this.friendshipService.acceptFriendRequest(requestId);
   }
 
-  // Add more API endpoints as needed
+
 }
