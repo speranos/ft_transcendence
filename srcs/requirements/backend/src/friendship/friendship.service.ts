@@ -63,7 +63,14 @@ export class FriendshipService {
         friendshipStatus: 'FRIENDS'
       },
     });
-    return this.prisma.friendshipRequest.findUnique({ where: { requestID: requestId } });
+    return this.prisma.friendship.findUnique({ where: { friendshipID: friends.friendshipID } });
   }
 
+  async blockFriendShip(friendshipId: string) {
+    const updateFriendShip = await this.prisma.friendship.update({
+      where: {friendshipID: friendshipId},
+      data: {friendshipStatus: 'BLOCKED'},
+    });
+    return updateFriendShip;
+  }
 }
