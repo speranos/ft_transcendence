@@ -1,8 +1,7 @@
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 // import { Server } from 'http';
 import { Socket, Server } from 'socket.io';
-import { PrismaService } from 'src/prisma-md/prisma-md.service'; 
-
+import { PrismaService } from '../prisma-md/prisma-md.service';
 
 @WebSocketGateway()
 export class ChatGateway {
@@ -12,6 +11,7 @@ export class ChatGateway {
 
 	@SubscribeMessage('create room')
 	creation(@MessageBody() msg: string, client: Socket, payload: any): string {
+		// this.prisma.room.create({});
 		console.log(msg);
 		// console.log();
 		// this.prisma.chat

@@ -32,6 +32,8 @@ model User {
   Friendship2      Friendship[]   @relation("Friendship2")
   receivedRequests FriendshipRequest[] @relation("Received")
   sentRequests     FriendshipRequest[] @relation("Sent")
+  memberin         Room[]
+  membership       RoomMembership[] @relation("member")
 }
 
 model TokensR {
@@ -96,8 +98,8 @@ model FriendshipRequest {
 }
 
 model Room {
-  id        Int      @id @default(autoincrement())
-  userId    Int
+  id        String                  @id @default(uuid())
+  userId    String
   name      String
   type      RoomType
   password  String?
@@ -105,32 +107,33 @@ model Room {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  //   members        User[]           @relation("member")
+  members        User[]
   messages       Message[]
   RoomMembership RoomMembership[]
 }
 
 model RoomMembership {
-  userId    Int      @id
-  roomId    Int
-  role      RoomRole
-  createdAt DateTime @default(now())
+  memberuserId    String        @id
+  roomId          String
+  role            RoomRole
+  createdAt       DateTime      @default(now())
 
-  room Room @relation(fields: [roomId], references: [id])
+  user            User          @relation("member", fields: [memberuserId], references: [userID])
+  room            Room          @relation(fields: [roomId], references: [id])
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
+  id        String                  @id @default(uuid())
   content   String
   senderId  Int
-  roomId    Int
+  roomId    String
   createdAt DateTime @default(now())
 
   room Room @relation(fields: [roomId], references: [id])
 }
 
 model DirectMessage {
-  id         Int      @id @default(autoincrement())
+  id         String                  @id @default(uuid())
   senderId   Int
   receiverId Int
   content    String
