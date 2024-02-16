@@ -11,38 +11,39 @@ datasource db {
 }
 
 model User {
-  userID           String         @id @default(uuid())
-  oauth            String         @unique
-  avatar           String         @default("default.jpeg")
-  userName         String?        @unique
-  email            String?        @unique
-  secret2FA        String?        @unique
-  auth2FA_id       String?        @unique
-  finishedProfile  Boolean        @default(false)
-  userOnline       Boolean        @default(false)
-  userInGame       Boolean        @default(false)
-  is2FA            Boolean        @default(false)
-  creationTime     DateTime       @default(now())
-  updateTime       DateTime       @updatedAt
-  P1               Games[]        @relation("Player1")
-  P2               Games[]        @relation("Player2")
-  Achievements     Achievements[]
-  Tokens           TokensR[]      @relation("Refresh")
-  Friendship1      Friendship[]   @relation("Friendship1")
-  Friendship2      Friendship[]   @relation("Friendship2")
+  userID            String        @id @default(uuid())
+  avatar            String        @default("default.jpeg")
+  userName          String        @unique
+  email             String        @unique
+  secret2FA         String?       @unique
+  auth2FA_id        String?       @unique
+  finishedProfile   Boolean       @default(false)
+  userOnline        Boolean       @default(false)
+  userInGame        Boolean       @default(false)
+  is2FA             Boolean       @default(false)
+  creationTime      DateTime      @default(now())
+  updateTime        DateTime      @updatedAt
+  P1                Games[]       @relation("Player1")
+  P2                Games[]       @relation("Player2")
+  Achievements      Achievements[]
+  RTokens           String        @default(uuid()) @unique
+  Friendship1       Friendship[]  @relation("Friendship1")
+  Friendship2       Friendship[]  @relation("Friendship2")
+  // receivedRequests  Requests[]    @relation("Received")
+  // sentRequests      Requests[]    @relation("Sent")
   receivedRequests FriendshipRequest[] @relation("Received")
   sentRequests     FriendshipRequest[] @relation("Sent")
   memberin         Room[]
   membership       RoomMembership[] @relation("member")
 }
 
-model TokensR {
-  tokenID      String   @id @unique
-  userID       String
-  creationDate DateTime @default(now())
-  updateDate   DateTime @updatedAt
-  userRelation User     @relation(name: "Refresh", fields: [userID], references: [userID])
-}
+// model TokensR {
+//   tokenID      String   @id @unique
+//   userID       String
+//   creationDate DateTime @default(now())
+//   updateDate   DateTime @updatedAt
+//   userRelation User     @relation(name: "Refresh", fields: [userID], references: [userID])
+// }
 
 model Games {
   gameID      String  @id @default(uuid())

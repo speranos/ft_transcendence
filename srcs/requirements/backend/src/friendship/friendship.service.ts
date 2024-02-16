@@ -67,10 +67,10 @@ export class FriendshipService {
   }
 
   async blockFriendShip(friendshipId: string) {
-    const updateFriendShip = await this.prisma.friendship.update({
-      where: {friendshipID: friendshipId},
-      data: {friendshipStatus: 'BLOCKED'},
-    });
-    return updateFriendShip;
+  //   const updateFriendShip = await this.prisma.friendship.update({
+  //     where: {friendshipID: friendshipId},
+  //     data: {friendshipStatus: 'BLOCKED'},
+  //   });
+  //   return updateFriendShip;
   }
 }
