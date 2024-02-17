@@ -1,5 +1,5 @@
 import { Param } from '@nestjs/common';
-import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { request } from 'http';
 import { Socket, Server } from 'socket.io';
 import { serialize } from 'v8';
@@ -15,7 +15,7 @@ export class ChatGateway {
 
 	@SubscribeMessage('creat DM')
 	DMcreation(){
-		
+
 
 	}
 

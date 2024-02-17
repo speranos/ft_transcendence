@@ -7,17 +7,17 @@ import { FriendshipService } from './friendship.service';
 export class FriendshipController {
   constructor(private readonly friendshipService: FriendshipService) {}
 
-  @Post('send-request/:senderId/:receiverId')
-  sendFriendRequest(@Param('senderId') senderId: string, @Param('receiverId') receiverId: string) {
-    // const senderIdNumber = parseInt(senderId, 10);
-    // const receiverIdNumber = parseInt(receiverId, 10);
-    return this.friendshipService.sendFriendRequest(senderId, receiverId);
-  }
+  // @Post('send-request/:senderId/:receiverId')
+  // sendFriendRequest(@Param('senderId') senderId: string, @Param('receiverId') receiverId: string) {
+  //   // const senderIdNumber = parseInt(senderId, 10);
+  //   // const receiverIdNumber = parseInt(receiverId, 10);
+  //   return this.friendshipService.sendFriendRequest(senderId, receiverId);
+  // }
 
-  @Post('accept-request/:requestId')
-  acceptFriendRequest(@Param('requestId') requestId: string) {
-    return this.friendshipService.acceptFriendRequest(requestId);
-  }
+  // @Post('accept-request/:requestId')
+  // acceptFriendRequest(@Param('requestId') requestId: string) {
+  //   return this.friendshipService.acceptFriendRequest(requestId);
+  // }
 
   @Post('blockfriendship/:friendshipId')
   blockFriendShip(@Param('friendshipId') friendshipId: string){
