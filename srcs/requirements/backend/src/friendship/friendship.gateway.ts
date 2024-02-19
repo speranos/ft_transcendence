@@ -39,7 +39,7 @@ export class friendShipGateway{
   @SubscribeMessage('accept request')
   async acceptFriendRequest(client: Socket, arg: any)
   {
-    const requestid = '551a019b-42f1-4d4f-9be1-b5f9347e926e';
+    const requestid = '6c792406-4d6c-4b19-be89-6685b31730cd';
     const jwt = 'no idea yet';
     arg = [requestid, jwt];
     const req = await this.prisma.friendshipRequest.findUnique({where: {requestID: arg[0]}});
@@ -59,8 +59,39 @@ export class friendShipGateway{
         friendshipStatus: 'FRIENDS',
       }
     });
+  const sender = await this.prisma.user.findUnique({where: {userID: req.senderID}});
+  const dm = await this.prisma.room.create({
+    data:{
+      userId: req.receiverID,
+      name: '',
+      type: 'DM',
+      members:{
+        connect: [
+        {userID: req.senderID},
+        {userID: req.receiverID},
+        ]
+      },
+    },
+    // include : {}
+  });
+  console.log(dm);
   //crer chi event 3andek ou emit mn lhna that the request is sucess if it's needed if not rah kha return is enough
-  return ret.friendshipID;
+  return;
+}
+
+
+@SubscribeMessage('get data')
+async getuser(){
+  const req = await this.prisma.room.findUnique({where: {
+    id: '086c7556-9c53-4fbf-8d82-d6f6fcbfa047'},
+    include: { members: true},
+  });
+  // console.log(req.)
+  const members = req.members;
+  console.log(members);
+
+
+
 }
 
   @SubscribeMessage('decline request')
