@@ -73,11 +73,14 @@ export class ChatGateway {
 	async JoinRoom(client: Socket, arg: any){
 		arg = ['user2', '35ce47bc-fa5d-4e72-b0a3-22f8974ef284', 'pass123123'];
 
-		const room = await this.prisma.room.findUnique({where: {id: arg[1]}});
+		const room = await this.prisma.room.findUnique({where: {id: arg[1]}, include: {banedusers: true}});
 		const member = await this.ChatUtils.T_membership(arg[0], arg[1]);
 		if(!room || member)
 			return 'User already existe OR room dosent existe';
-
+		const user = room.banedusers.some(user => user.userID === arg[0]);
+		if(user)
+			return 'User is Banned From this chanel!(wa ta sir t9wad)';
+  
 		if(room.type === 'PASSWORD_PROTECTED'){
 			const ismatch = await bcrypt.compare(arg[2], room.password);
 			if(!ismatch)
@@ -99,7 +102,6 @@ export class ChatGateway {
 				}
 			}
 		});
-		//still need to check if he is banned !!!!!!!!!!
 	}
 
 	@SubscribeMessage('kick')
