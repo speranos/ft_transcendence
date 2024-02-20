@@ -59,7 +59,7 @@ export class ChatGateway {
 
 	@SubscribeMessage('delete room')
 	async deletroom(client: Socket, arg: any){
-		arg = ['user2', 'cc38c8b3-ec80-4db9-bd8d-551d75673d52'];
+		arg = ['user1', '35ce47bc-fa5d-4e72-b0a3-22f8974ef284'];
 
 		const membership = await  this.ChatUtils.T_membership(arg[0], arg[1]);
 		if(!membership || membership.role != 'OWNER')
@@ -71,7 +71,7 @@ export class ChatGateway {
 
 	@SubscribeMessage('join room')
 	async JoinRoom(client: Socket, arg: any){
-		arg = ['user2', '35ce47bc-fa5d-4e72-b0a3-22f8974ef284', 'pass123123'];
+		arg = ['user3', '73790b06-71ac-411a-b55a-46c5a9bc15dc', 'pass123123'];
 
 		const room = await this.prisma.room.findUnique({where: {id: arg[1]}, include: {banedusers: true}});
 		const member = await this.ChatUtils.T_membership(arg[0], arg[1]);
@@ -80,7 +80,6 @@ export class ChatGateway {
 		const user = room.banedusers.some(user => user.userID === arg[0]);
 		if(user)
 			return 'User is Banned From this chanel!(wa ta sir t9wad)';
-  
 		if(room.type === 'PASSWORD_PROTECTED'){
 			const ismatch = await bcrypt.compare(arg[2], room.password);
 			if(!ismatch)
@@ -135,7 +134,7 @@ export class ChatGateway {
 
 	@SubscribeMessage('add room pass')
 	async AddRoomPass(client: Socket, arg: any){
-		arg = ['user1', '35ce47bc-fa5d-4e72-b0a3-22f8974ef284', 'pass123123'];
+		arg = ['user1', '73790b06-71ac-411a-b55a-46c5a9bc15dc', 'pass123123'];
 		const owner = await this.ChatUtils.T_membership(arg[0], arg[1]);
 		
 		// console.log(owner);
@@ -156,7 +155,7 @@ export class ChatGateway {
 
 	@SubscribeMessage('remove room pass')
 	async RmRoomPass(client: Socket, arg: any){
-		arg = ['user1', '35ce47bc-fa5d-4e72-b0a3-22f8974ef284', 'pass123123'];
+		arg = ['user1', '73790b06-71ac-411a-b55a-46c5a9bc15dc', 'pass123123'];
 
 		const owner = await  this.ChatUtils.T_membership(arg[0], arg[1]);
 		if(!owner || owner.role != 'OWNER')
@@ -179,13 +178,60 @@ export class ChatGateway {
 	}
 
 	@SubscribeMessage('set admin')
-	async SetAdmin(){
+	async SetAdmin(client: Socket, arg: any){
+		arg = ['user1', 'user2', '73790b06-71ac-411a-b55a-46c5a9bc15dc'];
 
+		const admin = await  this.ChatUtils.T_membership(arg[0], arg[2]);
+		if(!admin || (admin.role != 'ADMIN' && admin.role != 'OWNER'))
+			return	'User dont existe OR own the privallage for this action';
+
+		const newadmin = await  this.ChatUtils.T_membership(arg[1], arg[2]);
+		if(!newadmin || (newadmin.role === 'OWNER' || newadmin.role === 'ADMIN'))
+			return	'User dont existe OR own the privallage for this action';
+		
+		const ret = await this.prisma.roomMembership.update({
+			where: {
+				memberuserId: newadmin.memberuserId,
+				roomId: newadmin.roomId
+			},
+			data: {
+				role: 'ADMIN',
+			}
+		});
+	return ret;
 	}
 
 	@SubscribeMessage('Ban')
-	async Ban(){
+	async Ban(client: Socket, arg: any){
+		arg = ['user1', 'user2', '73790b06-71ac-411a-b55a-46c5a9bc15dc'];
 
+		const admin = await  this.ChatUtils.T_membership(arg[0], arg[2]);
+		if(!admin || admin.role === 'MEMBER')
+			return	'User dont existe OR own the privallage for this action';
+
+		const banneduser = await  this.ChatUtils.T_membership(arg[1], arg[2]);
+		if(!banneduser || banneduser.role === 'OWNER')
+			return	'User dont existe OR own the privallage for this action';
+		
+		const room = await this.prisma.room.update({
+			where: {
+				id: banneduser.roomId,
+			},
+			data: {
+				members: {
+					disconnect: {
+						userID: banneduser.memberuserId,
+					}
+				},
+				banedusers: {
+					connect: {
+						userID: banneduser.memberuserId,
+					}
+				}
+			}
+		});
+		await this.prisma.roomMembership.delete({where: banneduser});
+		return room;
 	}
 
 	@SubscribeMessage('Mute')

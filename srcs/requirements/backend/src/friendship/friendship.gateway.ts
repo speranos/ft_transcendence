@@ -89,6 +89,13 @@ async getuser(){
   // console.log(req.)
   const members = req.members;
   console.log(members);
+  // await this.prisma.user.create({
+  //   data: {
+  //     userID: 'user5',
+  //     userName: 'sba3',
+  //     email: 'sba3@sba3.com'
+  //   }
+  // });
 
 
 
