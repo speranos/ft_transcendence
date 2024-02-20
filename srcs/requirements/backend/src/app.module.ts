@@ -9,10 +9,12 @@ import { ChatGateway } from './chat/chat.gateway';
 import { FriendshipModule } from './friendship/friendship.module';
 import { FriendshipService } from './friendship/friendship.service';
 import { ChatService } from './chat/chat.service';
+import {ChatUtils } from './chat/utils';
+
 
 @Module({
   imports: [UserModule, PrismaMdModule, FriendshipModule],
   controllers: [AppController],
-  providers: [AppService, ChatGateway, ChatService],
+  providers: [AppService, ChatGateway, ChatService, ChatUtils],
 })
 export class AppModule {}
