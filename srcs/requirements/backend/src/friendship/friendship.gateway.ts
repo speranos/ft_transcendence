@@ -80,22 +80,43 @@ export class friendShipGateway{
 }
 
 
-@SubscribeMessage('get data')
+@SubscribeMessage('create user')
 async getuser(){
-  const req = await this.prisma.room.findUnique({where: {
-    id: '086c7556-9c53-4fbf-8d82-d6f6fcbfa047'},
-    include: { members: true},
-  });
-  // console.log(req.)
-  const members = req.members;
-  console.log(members);
-  // await this.prisma.user.create({
-  //   data: {
-  //     userID: 'user5',
-  //     userName: 'sba3',
-  //     email: 'sba3@sba3.com'
-  //   }
+  // const req = await this.prisma.room.findUnique({where: {
+  //   id: '086c7556-9c53-4fbf-8d82-d6f6fcbfa047'},
+  //   include: { members: true},
   // });
+  // // console.log(req.)
+  // const members = req.members;
+  // console.log(members);
+  await this.prisma.user.create({
+    data: {
+      userID: 'user4',
+      userName: 'ouss',
+      email: 'ouss@ouss.com'
+    }
+  });
+  await this.prisma.user.create({
+    data: {
+      userID: 'user3',
+      userName: 'amine',
+      email: 'amine@amine.com'
+    }
+  });
+  await this.prisma.user.create({
+    data: {
+      userID: 'user2',
+      userName: 'samine',
+      email: 'samine@samine.com'
+    }
+  });
+  await this.prisma.user.create({
+    data: {
+      userID: 'user1',
+      userName: 'mehdi',
+      email: 'mehdi@mehdi.com'
+    }
+  });
 
 
 

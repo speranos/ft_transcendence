@@ -17,17 +17,38 @@ export class ChatGateway {
 
 	@SubscribeMessage('send message')
 	async SendMessage(@MessageBody() message: string, client: Socket, arg: any){
-		arg = ['user1', 'user2', '086c7556-9c53-4fbf-8d82-d6f6fcbfa047'];
+		arg = ['user2', '744c7e30-5212-4119-969a-13e3f3ad4b00'];
 
-		//i need to check if user banned or muted or if is member aslan
+		const member = await this.ChatUtils.T_membership(arg[0], arg[1]);
+		if(!member)
+			return 'User dont existe OR dont belong to this room!';
+		if(member.ismuted)
+		{
+			const current = new Date();
+			// console.log("current =============== ", current);
+			// console.log("mute time ============= ", member.muteend);
+			if(current > member.muteend){
+				await this.prisma.roomMembership.update({
+					where: {
+						memberuserId: member.memberuserId,
+						roomId: member.roomId
+					},
+					data: {
+						ismuted: false,
+					}
+				});
+			}
+			else
+				return 'user muted!';
+		}
 		const mssg = await this.prisma.message.create({
 			data: {
 				content: message,
 				senderId: arg[0],
-				roomId: arg[2],
+				roomId: arg[1],
 			}
 		});
-	return mssg;		
+	return mssg;
 	}
 
 	@SubscribeMessage('create room')
@@ -46,8 +67,10 @@ export class ChatGateway {
 				},
 				RoomMembership: {
 					create: {
+						memberuserId: arg[0],
 						role: 'OWNER',
-						user: { connect: { userID: arg[0] } }
+						ismuted: false,
+						// user: { connect: { userID: arg[0] } }
 					}
 				},
 			},
@@ -71,7 +94,7 @@ export class ChatGateway {
 
 	@SubscribeMessage('join room')
 	async JoinRoom(client: Socket, arg: any){
-		arg = ['user3', '73790b06-71ac-411a-b55a-46c5a9bc15dc', 'pass123123'];
+		arg = ['user2', '744c7e30-5212-4119-969a-13e3f3ad4b00', 'pass123123'];
 
 		const room = await this.prisma.room.findUnique({where: {id: arg[1]}, include: {banedusers: true}});
 		const member = await this.ChatUtils.T_membership(arg[0], arg[1]);
@@ -97,6 +120,7 @@ export class ChatGateway {
 			create: {
 				memberuserId: arg[0],
 				role: 'MEMBER',
+				ismuted: false,
 			}
 				}
 			}
@@ -137,7 +161,6 @@ export class ChatGateway {
 		arg = ['user1', '73790b06-71ac-411a-b55a-46c5a9bc15dc', 'pass123123'];
 		const owner = await this.ChatUtils.T_membership(arg[0], arg[1]);
 		
-		// console.log(owner);
 		if(!owner || owner.role != 'OWNER')
 			return 'User dont existe OR own the privallage for this action';
 		const room = await this.prisma.room.update({
@@ -179,7 +202,7 @@ export class ChatGateway {
 
 	@SubscribeMessage('set admin')
 	async SetAdmin(client: Socket, arg: any){
-		arg = ['user1', 'user2', '73790b06-71ac-411a-b55a-46c5a9bc15dc'];
+		arg = ['user1', 'user3', '744c7e30-5212-4119-969a-13e3f3ad4b00'];
 
 		const admin = await  this.ChatUtils.T_membership(arg[0], arg[2]);
 		if(!admin || (admin.role != 'ADMIN' && admin.role != 'OWNER'))
@@ -235,12 +258,32 @@ export class ChatGateway {
 	}
 
 	@SubscribeMessage('Mute')
-	async Mute(){
+	async Mute(client: Socket, arg: any){
+		arg = ['user3', 'user2', '744c7e30-5212-4119-969a-13e3f3ad4b00', 30];
+		const muteuntil = new Date()
+		muteuntil.setSeconds(muteuntil.getSeconds() + arg[3]);
+		// const muteuntil = current.getSeconds() + arg[3];
+		console.log("WAAAAAAAAAA", muteuntil);
 
+		const admin = await this.ChatUtils.T_membership(arg[0], arg[2]);
+		if(!admin || (admin.role != 'ADMIN' && admin.role != 'OWNER'))
+			return 'User dont existe OR own the privallage for this action';
+
+		const muteduser = await  this.ChatUtils.T_membership(arg[1], arg[2]);
+		if(!muteduser || muteduser.role === 'OWNER')
+			return	'User dont existe OR own the privallage for this action';
+
+		const member = await this.prisma.roomMembership.update({
+			where: {
+				memberuserId: arg[1],
+				roomId: arg[2]
+			},
+			data: {
+				ismuted: true,
+				muteend: muteuntil,
+			}
+		});
+		console.log(member.muteend);
 	}
-	
-
-	
-
 	
 }

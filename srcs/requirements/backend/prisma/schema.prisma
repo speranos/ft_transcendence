@@ -109,6 +109,8 @@ model RoomMembership {
   memberuserId String   @id
   roomId       String
   role         RoomRole
+  ismuted      Boolean
+  muteend      DateTime?
   createdAt    DateTime @default(now())
 
   user User @relation("member", fields: [memberuserId], references: [userID])
@@ -124,14 +126,6 @@ model Message {
 
   room Room @relation(fields: [roomId], references: [id])
 }
-
-// model DirectMessage {
-//   id         String                  @id @default(uuid())
-//   senderId   String
-//   receiverId String
-//   content    String
-//   createdAt  DateTime @default(now())
-// }
 
 enum RoomType {
   DM
